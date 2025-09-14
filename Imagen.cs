@@ -10,6 +10,12 @@ namespace TPWinForm_Equipo22B
     {
         public int Id { get; set; }
         public int IdArticulo { get; set; }
-        public string ImagenUrl { get; set; }
+
+        public string ImagenURL { get; set; }
+
+        public override string ToString()
+        {
+            return ImagenURL;
+        }
     }
 }

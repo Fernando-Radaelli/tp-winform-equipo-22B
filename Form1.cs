@@ -12,6 +12,9 @@ namespace TPWinForm_Equipo22B
 {
     public partial class Form1 : Form
     {
+
+        private List<Articulo> listaArticulo;
+        private int indiceImagenActual = 0;
         public Form1()
         {
             InitializeComponent();
@@ -20,9 +23,76 @@ namespace TPWinForm_Equipo22B
         private void Form1_Load(object sender, EventArgs e)
         {
             Metodo carga = new Metodo();
-            dgvArticulos.DataSource = carga.Listar();
+            listaArticulo = carga.Listar();
+            dgvArticulos.DataSource = listaArticulo;
+            // Ocultar columnas que no quieres mostrar        
+            dgvArticulos.Columns["Marca"].Visible = false;
+            dgvArticulos.Columns["Categoria"].Visible = false;
         }
 
         
+
+        private void cargarImagen(string imagen) // carga imagen o coloca una por default..
+        {
+            try
+            {
+                pbImagen.Load(imagen);
+            }
+            catch (Exception)
+            {
+
+                pbImagen.Load("https://cdn-icons-png.flaticon.com/512/13434/13434972.png");
+        
+
+            }
+        }
+
+        private void dgvArticulos_SelectionChanged(object sender, EventArgs e) // funcion al momento de cambiar de fila en el DataGridView
+        {
+            if (dgvArticulos.CurrentRow != null)
+            {
+                indiceImagenActual = 0; // Reinicia el índice al cambiar de artículo
+                Articulo seleccion = (Articulo)dgvArticulos.CurrentRow.DataBoundItem;
+                if (seleccion.ListaImagenes.Count > 0)
+                {
+                    cargarImagen(seleccion.ListaImagenes[indiceImagenActual].ImagenURL);
+                }
+                else
+                {
+                    // Cargar imagen por defecto si no hay imágenes asociadas
+                    cargarImagen("https://cdn-icons-png.flaticon.com/512/13434/13434972.png");
+                }
+            }
+
+        }
+
+        private void botonAnterior_Click(object sender, EventArgs e)
+        {            
+            Articulo seleccion = (Articulo)dgvArticulos.CurrentRow.DataBoundItem;
+            if (seleccion.ListaImagenes.Count > 1)
+            {
+                indiceImagenActual--;
+                if (indiceImagenActual < 0)
+                {
+                    indiceImagenActual = seleccion.ListaImagenes.Count - 1; // Vuelve al final si llega al principio
+                }
+                cargarImagen(seleccion.ListaImagenes[indiceImagenActual].ImagenURL);
+            }
+        }
+
+        private void botonSiguiente_Click(object sender, EventArgs e)
+        {
+            Articulo seleccion = (Articulo)dgvArticulos.CurrentRow.DataBoundItem;
+            if (seleccion.ListaImagenes.Count > 1)
+            {
+                indiceImagenActual++;
+                if (indiceImagenActual >= seleccion.ListaImagenes.Count)
+                {
+                    indiceImagenActual = 0; // Vuelve al principio si llega al final
+                }
+                cargarImagen(seleccion.ListaImagenes[indiceImagenActual].ImagenURL);
+            }
+        }
     }
+   
 }

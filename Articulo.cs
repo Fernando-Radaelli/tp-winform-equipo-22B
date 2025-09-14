@@ -17,7 +17,8 @@ namespace TPWinForm_Equipo22B
             public Marca Marca { get; set; }         // Acá hay relación con MARCAS
             public Categoria Categoria { get; set; } // Acá hay relación con CATEGORIAS
             public decimal Precio { get; set; }
-            public List<Imagen> Imagenes { get; set; } //Y acá hay relación con IMAGENES
-        
+            //public Imagen ImagenUrlbase { get; set; }
+            public List<Imagen> ListaImagenes { get; set; }
+
     }
 }
