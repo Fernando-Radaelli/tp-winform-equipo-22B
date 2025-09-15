@@ -24,10 +24,10 @@ namespace TPWinForm_Equipo22B
         {
             Metodo carga = new Metodo();
             listaArticulo = carga.Listar();
-            dgvArticulos.DataSource = listaArticulo;
-            // Ocultar columnas que no quieres mostrar        
+            dgvArticulos.DataSource = listaArticulo;    
             dgvArticulos.Columns["Marca"].Visible = false;
             dgvArticulos.Columns["Categoria"].Visible = false;
+            cargarDatos();
         }
 
         
@@ -100,7 +100,46 @@ namespace TPWinForm_Equipo22B
             altaArticulo.ShowDialog();
         }
 
-        
+        private void cargarDatos()
+        {
+            Metodo carga = new Metodo();
+            listaArticulo = carga.Listar();
+            dgvArticulos.DataSource = listaArticulo;
+            dgvArticulos.Columns["Marca"].Visible = false;
+            dgvArticulos.Columns["Categoria"].Visible = false;
+        }
+
+        private void btnEliminar_Click(object sender, EventArgs e)
+        {
+            if (dgvArticulos.CurrentRow != null)
+            {
+                DialogResult respuesta = MessageBox.Show("¿Estás seguro de que deseas eliminar este artículo de forma permanente?", "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                if (respuesta == DialogResult.Yes)
+                {
+
+                    Articulo articuloAEliminar = (Articulo)dgvArticulos.CurrentRow.DataBoundItem;
+
+                    Metodo metodo = new Metodo();
+                    try
+                    {
+                        metodo.Eliminar(articuloAEliminar.Id);
+                        MessageBox.Show("Artículo eliminado exitosamente.");
+                        cargarDatos();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ocurrió un error al intentar eliminar el artículo: {ex.Message}");
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Por favor, selecciona un artículo de la lista para eliminarlo.");
+            }
+        }
+
+
     }
    
 }

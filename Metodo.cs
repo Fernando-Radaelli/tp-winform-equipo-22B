@@ -169,7 +169,37 @@ namespace TPWinForm_Equipo22B
                 conexion.Close();
             }
         }
-       
+
+        public void Eliminar(int idArticulo)
+        {
+            SqlConnection conexion = new SqlConnection("server=.\\SQLEXPRESS; database=CATALOGO_P3_DB; integrated security=true");
+            SqlCommand comando = new SqlCommand();
+
+            try
+            {
+                conexion.Open();              
+                comando.Connection = conexion;
+                comando.CommandText = "DELETE FROM IMAGENES WHERE IdArticulo = @IdArticulo";
+                comando.Parameters.Clear(); 
+                comando.Parameters.AddWithValue("@IdArticulo", idArticulo);
+                comando.ExecuteNonQuery();
+                comando.CommandText = "DELETE FROM ARTICULOS WHERE Id = @IdArticulo";
+                
+                comando.Parameters.Clear();
+                comando.Parameters.AddWithValue("@IdArticulo", idArticulo);
+                comando.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+              
+                throw ex;
+            }
+            finally
+            {
+                conexion.Close();
+            }
+        }
+
     }
 }
 
