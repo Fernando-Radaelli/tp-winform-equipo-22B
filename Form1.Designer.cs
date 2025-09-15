@@ -32,6 +32,9 @@
             this.pbImagen = new System.Windows.Forms.PictureBox();
             this.botonAnterior = new System.Windows.Forms.Button();
             this.botonSiguiente = new System.Windows.Forms.Button();
+            this.botonAgregar = new System.Windows.Forms.Button();
+            this.botonModificar = new System.Windows.Forms.Button();
+            this.botonEliminar = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvArticulos)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbImagen)).BeginInit();
             this.SuspendLayout();
@@ -74,11 +77,42 @@
             this.botonSiguiente.UseVisualStyleBackColor = true;
             this.botonSiguiente.Click += new System.EventHandler(this.botonSiguiente_Click);
             // 
+            // botonAgregar
+            // 
+            this.botonAgregar.Location = new System.Drawing.Point(13, 455);
+            this.botonAgregar.Name = "botonAgregar";
+            this.botonAgregar.Size = new System.Drawing.Size(114, 45);
+            this.botonAgregar.TabIndex = 4;
+            this.botonAgregar.Text = "agregar artículo";
+            this.botonAgregar.UseVisualStyleBackColor = true;
+            this.botonAgregar.Click += new System.EventHandler(this.botonAgregar_Click);
+            // 
+            // botonModificar
+            // 
+            this.botonModificar.Location = new System.Drawing.Point(155, 456);
+            this.botonModificar.Name = "botonModificar";
+            this.botonModificar.Size = new System.Drawing.Size(115, 44);
+            this.botonModificar.TabIndex = 5;
+            this.botonModificar.Text = "modificar artículo";
+            this.botonModificar.UseVisualStyleBackColor = true;
+            // 
+            // botonEliminar
+            // 
+            this.botonEliminar.Location = new System.Drawing.Point(303, 456);
+            this.botonEliminar.Name = "botonEliminar";
+            this.botonEliminar.Size = new System.Drawing.Size(115, 45);
+            this.botonEliminar.TabIndex = 6;
+            this.botonEliminar.Text = "eliminar artículo";
+            this.botonEliminar.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1076, 534);
+            this.Controls.Add(this.botonEliminar);
+            this.Controls.Add(this.botonModificar);
+            this.Controls.Add(this.botonAgregar);
             this.Controls.Add(this.botonSiguiente);
             this.Controls.Add(this.botonAnterior);
             this.Controls.Add(this.pbImagen);
@@ -98,6 +132,9 @@
         private System.Windows.Forms.PictureBox pbImagen;
         private System.Windows.Forms.Button botonAnterior;
         private System.Windows.Forms.Button botonSiguiente;
+        private System.Windows.Forms.Button botonAgregar;
+        private System.Windows.Forms.Button botonModificar;
+        private System.Windows.Forms.Button botonEliminar;
     }
 }
 

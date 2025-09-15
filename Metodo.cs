@@ -65,19 +65,7 @@ namespace TPWinForm_Equipo22B
                 }
 
                 return Lista;
-
-                /*aux.ImagenUrlbase = new Imagen();
-                if (lectura["ImagenURL"] is DBNull)
-                {
-                    aux.ImagenUrlbase.Id = 0;
-                    aux.ImagenUrlbase.ImagenURL = "";
-                }
-                else
-                {
-
-                    aux.ImagenUrlbase.Id = (int)lectura["IdImg"];
-                    aux.ImagenUrlbase.ImagenURL = (string)lectura["ImagenUrl"];
-                }*/
+              
 
             }
             catch (Exception ex)
@@ -86,6 +74,102 @@ namespace TPWinForm_Equipo22B
             }
         }
 
+        public List<Marca> ListarMarcas()
+        {
+            List<Marca> lista = new List<Marca>();
+            SqlConnection conexion = new SqlConnection("server=.\\SQLEXPRESS; database=CATALOGO_P3_DB; integrated security=true");
+            SqlCommand comando = new SqlCommand("SELECT Id, Descripcion FROM MARCAS", conexion);
+            SqlDataReader lectura;
+
+            try
+            {
+                conexion.Open();
+                lectura = comando.ExecuteReader();
+                while (lectura.Read())
+                {
+                    Marca aux = new Marca();
+                    aux.Id = (int)lectura["Id"];
+                    aux.Descripcion = (string)lectura["Descripcion"];
+                    lista.Add(aux);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                conexion.Close();
+            }
+        }
+
+        public List<Categoria> ListarCategorias()
+        {
+            List<Categoria> lista = new List<Categoria>();
+            SqlConnection conexion = new SqlConnection("server=.\\SQLEXPRESS; database=CATALOGO_P3_DB; integrated security=true");
+            SqlCommand comando = new SqlCommand("SELECT Id, Descripcion FROM CATEGORIAS", conexion);
+            SqlDataReader lectura;
+
+            try
+            {
+                conexion.Open();
+                lectura = comando.ExecuteReader();
+                while (lectura.Read())
+                {
+                    Categoria aux = new Categoria();
+                    aux.Id = (int)lectura["Id"];
+                    aux.Descripcion = (string)lectura["Descripcion"];
+                    lista.Add(aux);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                conexion.Close();
+            }
+        }
+
+        public void Agregar(Articulo nuevo)
+        {
+            SqlConnection conexion = new SqlConnection();
+            SqlCommand comando = new SqlCommand();
+
+            try
+            {
+                conexion.ConnectionString = "server=.\\SQLEXPRESS; database=CATALOGO_P3_DB; integrated security=true";
+                comando.CommandType = System.Data.CommandType.Text;
+
+               
+                comando.CommandText = "INSERT INTO ARTICULOS (Codigo, Nombre, Descripcion, IdMarca, IdCategoria, Precio) " +
+                                      "VALUES (@Codigo, @Nombre, @Descripcion, @IdMarca, @IdCategoria, @Precio)";
+
+                
+                comando.Parameters.AddWithValue("@Codigo", nuevo.Codigo);
+                comando.Parameters.AddWithValue("@Nombre", nuevo.Nombre);
+                comando.Parameters.AddWithValue("@Descripcion", nuevo.Descripcion);
+                comando.Parameters.AddWithValue("@IdMarca", nuevo.Marca.Id); 
+                comando.Parameters.AddWithValue("@IdCategoria", nuevo.Categoria.Id); 
+                comando.Parameters.AddWithValue("@Precio", nuevo.Precio);
+
+                comando.Connection = conexion;
+                conexion.Open();
+                comando.ExecuteNonQuery(); 
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                conexion.Close();
+            }
+        }
+       
     }
 }
 

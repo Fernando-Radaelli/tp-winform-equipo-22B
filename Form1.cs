@@ -38,7 +38,7 @@ namespace TPWinForm_Equipo22B
             {
                 pbImagen.Load(imagen);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 pbImagen.Load("https://cdn-icons-png.flaticon.com/512/13434/13434972.png");
@@ -93,6 +93,14 @@ namespace TPWinForm_Equipo22B
                 cargarImagen(seleccion.ListaImagenes[indiceImagenActual].ImagenURL);
             }
         }
+
+        private void botonAgregar_Click(object sender, EventArgs e)
+        {
+            frmGestionArticulo altaArticulo = new frmGestionArticulo();
+            altaArticulo.ShowDialog();
+        }
+
+        
     }
    
 }
