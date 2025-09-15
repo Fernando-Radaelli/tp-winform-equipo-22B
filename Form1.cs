@@ -32,7 +32,7 @@ namespace TPWinForm_Equipo22B
 
         
 
-        private void cargarImagen(string imagen) // carga imagen o coloca una por default..
+        private void cargarImagen(string imagen) 
         {
             try
             {
@@ -47,11 +47,11 @@ namespace TPWinForm_Equipo22B
             }
         }
 
-        private void dgvArticulos_SelectionChanged(object sender, EventArgs e) // funcion al momento de cambiar de fila en el DataGridView
+        private void dgvArticulos_SelectionChanged(object sender, EventArgs e) 
         {
             if (dgvArticulos.CurrentRow != null)
             {
-                indiceImagenActual = 0; // Reinicia el índice al cambiar de artículo
+                indiceImagenActual = 0; 
                 Articulo seleccion = (Articulo)dgvArticulos.CurrentRow.DataBoundItem;
                 if (seleccion.ListaImagenes.Count > 0)
                 {
@@ -59,7 +59,6 @@ namespace TPWinForm_Equipo22B
                 }
                 else
                 {
-                    // Cargar imagen por defecto si no hay imágenes asociadas
                     cargarImagen("https://cdn-icons-png.flaticon.com/512/13434/13434972.png");
                 }
             }
@@ -74,7 +73,7 @@ namespace TPWinForm_Equipo22B
                 indiceImagenActual--;
                 if (indiceImagenActual < 0)
                 {
-                    indiceImagenActual = seleccion.ListaImagenes.Count - 1; // Vuelve al final si llega al principio
+                    indiceImagenActual = seleccion.ListaImagenes.Count - 1; 
                 }
                 cargarImagen(seleccion.ListaImagenes[indiceImagenActual].ImagenURL);
             }
@@ -88,7 +87,7 @@ namespace TPWinForm_Equipo22B
                 indiceImagenActual++;
                 if (indiceImagenActual >= seleccion.ListaImagenes.Count)
                 {
-                    indiceImagenActual = 0; // Vuelve al principio si llega al final
+                    indiceImagenActual = 0; 
                 }
                 cargarImagen(seleccion.ListaImagenes[indiceImagenActual].ImagenURL);
             }
