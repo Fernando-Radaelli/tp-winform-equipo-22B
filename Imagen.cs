@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TPWinForm_Equipo22B
 {
-    internal class Imagen
+    public class Imagen
     {
         public int Id { get; set; }
         public int IdArticulo { get; set; }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TPWinForm_Equipo22B
 {
-    internal class Articulo
+    public class Articulo
     {
             public int Id { get; set; }              // PK de la tabla ARTICULOS
             public string Codigo { get; set; }

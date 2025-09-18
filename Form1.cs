@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
+
 
 namespace TPWinForm_Equipo22B
 {
@@ -22,17 +26,31 @@ namespace TPWinForm_Equipo22B
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.BackColor = Color.FromArgb(240, 240, 240);
+            dgvArticulos.BackgroundColor = Color.White;
+            dgvArticulos.ColumnHeadersDefaultCellStyle.BackColor = Color.SteelBlue;
+            dgvArticulos.EnableHeadersVisualStyles = false;
+            dgvArticulos.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvArticulos.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+
             Metodo carga = new Metodo();
             listaArticulo = carga.Listar();
-            dgvArticulos.DataSource = listaArticulo;    
+            dgvArticulos.DataSource = listaArticulo; 
+            dgvArticulos.Columns["id"].Visible = false; 
             dgvArticulos.Columns["Marca"].Visible = false;
             dgvArticulos.Columns["Categoria"].Visible = false;
             cargarDatos();
+            cboCampo.Items.Add("Codigo");
+            cboCampo.Items.Add("Nombre");
+            cboCampo.Items.Add("Descripción");
+            cboCampo.Items.Add("Marca");
+            cboCampo.Items.Add("Categoria");
+            cboCampo.Items.Add("Precio");
         }
 
-        
 
-        private void cargarImagen(string imagen) 
+
+        private void cargarImagen(string imagen)
         {
             try
             {
@@ -42,16 +60,16 @@ namespace TPWinForm_Equipo22B
             {
 
                 pbImagen.Load("https://cdn-icons-png.flaticon.com/512/13434/13434972.png");
-        
+
 
             }
         }
 
-        private void dgvArticulos_SelectionChanged(object sender, EventArgs e) 
+        private void dgvArticulos_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvArticulos.CurrentRow != null)
             {
-                indiceImagenActual = 0; 
+                indiceImagenActual = 0;
                 Articulo seleccion = (Articulo)dgvArticulos.CurrentRow.DataBoundItem;
                 if (seleccion.ListaImagenes.Count > 0)
                 {
@@ -66,14 +84,14 @@ namespace TPWinForm_Equipo22B
         }
 
         private void botonAnterior_Click(object sender, EventArgs e)
-        {            
+        {
             Articulo seleccion = (Articulo)dgvArticulos.CurrentRow.DataBoundItem;
             if (seleccion.ListaImagenes.Count > 1)
             {
                 indiceImagenActual--;
                 if (indiceImagenActual < 0)
                 {
-                    indiceImagenActual = seleccion.ListaImagenes.Count - 1; 
+                    indiceImagenActual = seleccion.ListaImagenes.Count - 1;
                 }
                 cargarImagen(seleccion.ListaImagenes[indiceImagenActual].ImagenURL);
             }
@@ -87,7 +105,7 @@ namespace TPWinForm_Equipo22B
                 indiceImagenActual++;
                 if (indiceImagenActual >= seleccion.ListaImagenes.Count)
                 {
-                    indiceImagenActual = 0; 
+                    indiceImagenActual = 0;
                 }
                 cargarImagen(seleccion.ListaImagenes[indiceImagenActual].ImagenURL);
             }
@@ -97,6 +115,7 @@ namespace TPWinForm_Equipo22B
         {
             frmGestionArticulo altaArticulo = new frmGestionArticulo();
             altaArticulo.ShowDialog();
+            cargarDatos();
         }
 
         private void cargarDatos()
@@ -104,8 +123,6 @@ namespace TPWinForm_Equipo22B
             Metodo carga = new Metodo();
             listaArticulo = carga.Listar();
             dgvArticulos.DataSource = listaArticulo;
-            dgvArticulos.Columns["Marca"].Visible = false;
-            dgvArticulos.Columns["Categoria"].Visible = false;
         }
 
         private void btnEliminar_Click(object sender, EventArgs e)
@@ -139,6 +156,97 @@ namespace TPWinForm_Equipo22B
         }
 
 
+        private void txtFiltro_TextChanged(object sender, EventArgs e)
+        {
+            List<Articulo> listafiltrada;
+            string filtro = txtFiltro.Text;
+
+            if (filtro != "")
+            {
+
+                listafiltrada = listaArticulo.FindAll(x => x.Nombre.ToLower().Contains(filtro.ToLower()));
+
+            }
+            else
+            {
+                listafiltrada = listaArticulo;
+            }
+
+            dgvArticulos.DataSource = null;
+            dgvArticulos.DataSource = listafiltrada;
+
+        }
+
+        private void cboCampo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string opcion = cboCampo.SelectedItem.ToString();
+            if (opcion == "Precio")
+            {
+                cboCriterio.Items.Clear();
+                cboCriterio.Items.Add("Mayor a");
+                cboCriterio.Items.Add("Menor a");
+                cboCriterio.Items.Add("Igual a");
+            }
+            else
+            {
+                cboCriterio.Items.Clear();
+                cboCriterio.Items.Add("Comienza con");
+                cboCriterio.Items.Add("Termina con");
+                cboCriterio.Items.Add("Contiene");
+            }
+            cboCriterio.SelectedIndex = 0;
+        }
+
+        private void botonFiltro_Click(object sender, EventArgs e)
+        {
+            Metodo metodo = new Metodo();
+
+
+
+            if (string.IsNullOrEmpty(txtFiltroAvanzado.Text))
+            {
+                cargarDatos();
+                return;
+            }
+
+            try
+            {
+                string campo = cboCampo.SelectedItem.ToString();
+                string criterio = cboCriterio.SelectedItem.ToString();
+                string filtroAvanzado = txtFiltroAvanzado.Text;
+                listaArticulo = metodo.filtrar(campo, criterio, filtroAvanzado);
+                dgvArticulos.DataSource = listaArticulo;
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                throw;
+            }
+
+        }
+
+        private void botonModificar_Click(object sender, EventArgs e)
+        {
+            
+            try
+            {
+                Articulo seleccionado = (Articulo)dgvArticulos.CurrentRow.DataBoundItem;
+                frmGestionArticulo modificar = new frmGestionArticulo(seleccionado);
+                modificar.Text = "Modificar Artículo";
+                modificar.ShowDialog();
+                cargarDatos();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al intentar modificar el artículo: " + ex.Message);
+
+            }
+
+        }
+    
     }
-   
 }
+    
+   
+

@@ -12,12 +12,36 @@ namespace TPWinForm_Equipo22B
 {
     public partial class frmGestionArticulo : Form
     {
+        private Articulo articulo = null;
+        private int indiceImagenActual = 0;
+
         public frmGestionArticulo()
         {
             InitializeComponent();
+            ConfigurarEstilos();
         }
 
+        public frmGestionArticulo(Articulo articuloSeleccionado)
+        {
+            InitializeComponent();
+            this.articulo = articuloSeleccionado;
+            Text = "Modificar Artículo";
+            ConfigurarEstilos();
+        }
 
+        private void ConfigurarEstilos()
+        {
+            this.BackColor = Color.FromArgb(240, 240, 240);
+
+            txtCodigo.Font = new Font("Segoe UI", 9);
+            txtNombre.Font = new Font("Segoe UI", 9);
+
+            botonAceptar.BackColor = Color.FromArgb(76, 175, 80); 
+            botonAceptar.ForeColor = Color.White;
+            botonAceptar.FlatStyle = FlatStyle.Flat;
+            botonAceptar.FlatAppearance.BorderSize = 0;
+
+        }
 
         private void botonCancelar_Click(object sender, EventArgs e)
         {
@@ -26,27 +50,66 @@ namespace TPWinForm_Equipo22B
 
         private void botonAceptar_Click(object sender, EventArgs e)
         {
-            Articulo nuevo = new Articulo();
             Metodo metodo = new Metodo();
+
             try
             {
-                nuevo.Codigo=txtCodigo.Text;    
-                nuevo.Nombre=txtNombre.Text;
-                nuevo.Descripcion=txtDescripcion.Text;
+
+                if (articulo == null)
+                {
+                    articulo = new Articulo();
+                }
+
+                articulo.Codigo = txtCodigo.Text;
+                articulo.Nombre = txtNombre.Text;
+                articulo.Descripcion = txtDescripcion.Text;
+
                 if (!string.IsNullOrEmpty(txtPrecioArticulo.Text))
                 {
-                    nuevo.Precio = decimal.Parse(txtPrecioArticulo.Text);
+                    articulo.Precio = decimal.Parse(txtPrecioArticulo.Text);
                 }
                 else
                 {
-                    nuevo.Precio = 0; 
+                    articulo.Precio = 0;
                 }
-                nuevo.Marca=(Marca)comboBoxMarca.SelectedItem;
-                nuevo.Categoria = (Categoria)comboBoxCategoria.SelectedItem;
 
-                metodo.Agregar(nuevo);
+                articulo.Marca = new Marca();
+                articulo.Marca.Id = (int)comboBoxMarca.SelectedValue;
 
-                MessageBox.Show("Artículo agregado exitosamente.");
+                articulo.Categoria = new Categoria();
+                articulo.Categoria.Id = (int)comboBoxCategoria.SelectedValue;
+
+
+                if (articulo.Id != 0)
+                {
+
+                    metodo.Modificar(articulo);
+                }
+                else
+                {
+
+                    int idNuevoArticulo = metodo.Agregar(articulo);
+                    articulo.Id = idNuevoArticulo;
+                }
+
+
+                if (!string.IsNullOrEmpty(txtUrlNueva.Text))
+                {
+                    
+                    if (articulo.Id != 0 && articulo.ListaImagenes != null && articulo.ListaImagenes.Count > 0)
+                    {
+
+                        metodo.Eliminar(articulo.Id);
+                    }
+
+
+                    Imagen imagen = new Imagen();
+                    imagen.IdArticulo = articulo.Id;
+                    imagen.ImagenURL = txtUrlNueva.Text;
+                    metodo.agregarImagen(imagen);
+                }
+
+                MessageBox.Show("Operación realizada con éxito.");
                 this.Close();
             }
             catch (Exception ex)
@@ -81,6 +144,82 @@ namespace TPWinForm_Equipo22B
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
+            }
+
+            try
+            {
+                comboBoxCategoria.DataSource = metodo.ListarCategorias();
+                comboBoxCategoria.ValueMember = "Id";
+                comboBoxCategoria.DisplayMember = "Descripcion";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
+            if (articulo != null)
+            {
+                txtCodigo.Text = articulo.Codigo;
+                txtNombre.Text = articulo.Nombre;
+                txtDescripcion.Text = articulo.Descripcion;
+                txtPrecioArticulo.Text = articulo.Precio.ToString();
+
+                comboBoxMarca.SelectedValue = articulo.Marca.Id;
+                comboBoxCategoria.SelectedValue = articulo.Categoria.Id;
+
+                if (articulo.ListaImagenes != null && articulo.ListaImagenes.Count > 0)
+                {
+                    cargarImagen(articulo.ListaImagenes[0].ImagenURL);
+                    txtUrlNueva.Text = articulo.ListaImagenes[0].ImagenURL;
+                }
+            }
+        }
+
+        private void textBox1_Leave(object sender, EventArgs e)
+        {
+            cargarImagen(txtUrlNueva.Text);
+        }
+
+        private void cargarImagen(string imagen)
+        {
+            try
+            {
+                pbNuevoArticulo.Load(imagen);
+            }
+            catch (Exception ex)
+            {
+
+                pbNuevoArticulo.Load("https://cdn-icons-png.flaticon.com/512/13434/13434972.png");
+
+
+            }
+        }
+
+        private void botonModificarAnterior_Click(object sender, EventArgs e)
+        {
+            if (articulo.ListaImagenes.Count > 1)
+            {
+                indiceImagenActual--;
+                if (indiceImagenActual < 0)
+                {
+                    indiceImagenActual = articulo.ListaImagenes.Count - 1; 
+                }
+                cargarImagen(articulo.ListaImagenes[indiceImagenActual].ImagenURL);
+                txtUrlNueva.Text = articulo.ListaImagenes[indiceImagenActual].ImagenURL;
+            }
+        }
+
+        private void botonModificarSiguiente_Click(object sender, EventArgs e)
+        {
+            if (articulo.ListaImagenes.Count > 1)
+            {
+                indiceImagenActual++;
+                if (indiceImagenActual >= articulo.ListaImagenes.Count)
+                {
+                    indiceImagenActual = 0; 
+                }
+                cargarImagen(articulo.ListaImagenes[indiceImagenActual].ImagenURL);
+                txtUrlNueva.Text = articulo.ListaImagenes[indiceImagenActual].ImagenURL;
             }
         }
     }
