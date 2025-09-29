@@ -98,20 +98,20 @@ namespace TPWinForm_Equipo22B
 
                     MessageBox.Show("El campo Precio es obligatorio y debe ser mayor a $0.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
-                }               
+                }
+
+                int idArticulo = articulo.Id; 
+
+                if (metodo.VerificarCodigoExistente(txtCodigo.Text, idArticulo))
+                {
+                    MessageBox.Show("El Código ingresado ya pertenece a otro artículo.", "Error de Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return; 
+                }
 
                 articulo.Codigo = txtCodigo.Text;
                 articulo.Nombre = txtNombre.Text;
                 articulo.Descripcion = txtDescripcion.Text;
 
-                if (!string.IsNullOrEmpty(txtPrecioArticulo.Text))
-                {
-                    articulo.Precio = decimal.Parse(txtPrecioArticulo.Text);
-                }
-                else
-                {
-                    articulo.Precio = 0;
-                }
 
                 articulo.Marca = new Marca();
                 articulo.Marca.Id = (int)comboBoxMarca.SelectedValue;
@@ -133,19 +133,11 @@ namespace TPWinForm_Equipo22B
                 }
 
 
-                if (!string.IsNullOrEmpty(txtUrlNueva.Text))
+                foreach (string url in lsbImagenes.Items)
                 {
-                    
-                    if (articulo.Id != 0 && articulo.ListaImagenes != null && articulo.ListaImagenes.Count > 0)
-                    {
-
-                        metodo.EliminarImagenes(articulo.Id);
-                    }
-
-
                     Imagen imagen = new Imagen();
                     imagen.IdArticulo = articulo.Id;
-                    imagen.ImagenURL = txtUrlNueva.Text;
+                    imagen.ImagenURL = url.ToString(); 
                     metodo.agregarImagen(imagen);
                 }
 
@@ -209,10 +201,17 @@ namespace TPWinForm_Equipo22B
 
                 if (articulo.ListaImagenes != null && articulo.ListaImagenes.Count > 0)
                 {
+                    lsbImagenes.Items.Clear();
+                    foreach (var imagen in articulo.ListaImagenes)
+                    {
+                        lsbImagenes.Items.Add(imagen.ImagenURL);
+                    }
+
                     cargarImagen(articulo.ListaImagenes[0].ImagenURL);
-                    txtUrlNueva.Text = articulo.ListaImagenes[0].ImagenURL;
                 }
             }
+
+
         }
 
         private void textBox1_Leave(object sender, EventArgs e)
@@ -260,6 +259,56 @@ namespace TPWinForm_Equipo22B
                 }
                 cargarImagen(articulo.ListaImagenes[indiceImagenActual].ImagenURL);
                 txtUrlNueva.Text = articulo.ListaImagenes[indiceImagenActual].ImagenURL;
+            }
+        }
+
+        private void btnAgregarUrl_Click(object sender, EventArgs e)
+        {
+            string url = txtUrlNueva.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                MessageBox.Show("Por favor, ingrese una URL válida.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            lsbImagenes.Items.Add(url);
+            txtUrlNueva.Clear(); 
+
+
+            cargarImagen(url);
+        }
+
+        private void btnEliminarUrl_Click(object sender, EventArgs e)
+        {
+            if (lsbImagenes.SelectedItem != null)
+            {
+
+                lsbImagenes.Items.Remove(lsbImagenes.SelectedItem);
+
+
+                if (lsbImagenes.Items.Count > 0)
+                {
+                    cargarImagen(lsbImagenes.Items[0].ToString());
+                }
+                else
+                {
+
+                    cargarImagen("");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Seleccione una URL de la lista para eliminar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void lsbImagenes_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lsbImagenes.SelectedItem != null)
+            {
+                string urlSeleccionada = lsbImagenes.SelectedItem.ToString();
+                cargarImagen(urlSeleccionada);
             }
         }
     }

@@ -11,78 +11,82 @@ using System.Threading.Tasks;
 namespace TPWinForm_Equipo22B
 {
     internal class Metodo
-    {   
+    {
         public List<Articulo> Listar()
         {
             List<Articulo> Lista = new List<Articulo>();
-            SqlConnection conexion = new SqlConnection();
-            SqlCommand comando= new SqlCommand();
-            SqlDataReader lectura;
 
-
-            try
+            using (SqlConnection conexion = new SqlConnection("server=.\\SQLEXPRESS; database=CATALOGO_P3_DB; integrated security=true"))
             {
-                conexion.ConnectionString = "server=.\\SQLEXPRESS; database=CATALOGO_P3_DB; integrated security=true";
-                comando.CommandType = System.Data.CommandType.Text;
-                comando.CommandText = "SELECT A.Id, A.Codigo, A.Nombre, A.Descripcion, M.Descripcion AS Marca, C.Descripcion AS Categoria, A.Precio, A.IdMarca, A.IdCategoria FROM ARTICULOS A JOIN MARCAS M ON A.IdMarca = M.Id JOIN CATEGORIAS C ON A.IdCategoria = C.Id";
-                comando.Connection=conexion;
-
-                conexion.Open();
-                lectura = comando.ExecuteReader();
-
-                while (lectura.Read())
+                using (SqlCommand comando = new SqlCommand())
                 {
-                    Articulo aux =new Articulo();
+                    comando.CommandType = System.Data.CommandType.Text;
+                    comando.CommandText = "SELECT A.Id, A.Codigo, A.Nombre, A.Descripcion, M.Descripcion AS Marca, C.Descripcion AS Categoria, A.Precio, A.IdMarca, A.IdCategoria FROM ARTICULOS A JOIN MARCAS M ON A.IdMarca = M.Id JOIN CATEGORIAS C ON A.IdCategoria = C.Id";
+                    comando.Connection = conexion;
 
-                    aux.Id = (int)lectura["Id"];
-                    aux.Codigo = (string)lectura["Codigo"];
-                    aux.Nombre = (string)lectura["Nombre"];
-                    aux.Descripcion = (string)lectura["Descripcion"];
-                    aux.Precio = (decimal)lectura["Precio"];
-                    aux.Marca = new Marca();
-                    aux.Marca.Id = (int)lectura["IdMarca"];
-                    aux.Marca.Descripcion = (string)lectura["Marca"];
-                    aux.Categoria = new Categoria();
-                    aux.Categoria.Id = (int)lectura["IdCategoria"];
-                    aux.Categoria.Descripcion = (string)lectura["Categoria"];
-                    aux.ListaImagenes = new List<Imagen>();
-                    Lista.Add(aux);
-                }
-                lectura.Close();
-
-
-                foreach (var articulo in Lista)
-                {
-                    comando.CommandText = "SELECT Id, ImagenUrl FROM IMAGENES WHERE IdArticulo = @IdArticulo";
-                    comando.Parameters.Clear();
-                    comando.Parameters.AddWithValue("@IdArticulo", articulo.Id);
-                    SqlDataReader lecturaImagenes = comando.ExecuteReader();
-
-                    while (lecturaImagenes.Read())
+                    try
                     {
-                        Imagen img = new Imagen();
-                        img.Id = (int)lecturaImagenes["Id"];
-                        img.ImagenURL = (string)lecturaImagenes["ImagenUrl"];
-                        articulo.ListaImagenes.Add(img);
+                        conexion.Open();
+
+                        using (SqlDataReader lectura = comando.ExecuteReader())
+                        {
+                            while (lectura.Read())
+                            {
+                                Articulo aux = new Articulo();
+
+                                aux.Id = (int)lectura["Id"];
+                                aux.Codigo = (string)lectura["Codigo"];
+                                aux.Nombre = (string)lectura["Nombre"];
+                                aux.Descripcion = (string)lectura["Descripcion"];
+                                aux.Precio = (decimal)lectura["Precio"];
+
+                                aux.Marca = new Marca();
+                                aux.Marca.Id = (int)lectura["IdMarca"];
+                                aux.Marca.Descripcion = (string)lectura["Marca"];
+
+                                aux.Categoria = new Categoria();
+                                aux.Categoria.Id = (int)lectura["IdCategoria"];
+                                aux.Categoria.Descripcion = (string)lectura["Categoria"];
+
+                                aux.ListaImagenes = new List<Imagen>();
+
+                                Lista.Add(aux);
+                            }
+                        } 
+
+                        foreach (var articulo in Lista)
+                        {
+                            using (SqlCommand comandoImagenes = new SqlCommand())
+                            {
+                                comandoImagenes.Connection = conexion; 
+                                comandoImagenes.CommandType = System.Data.CommandType.Text;
+
+                                comandoImagenes.CommandText = "SELECT Id, ImagenUrl FROM IMAGENES WHERE IdArticulo = @IdArticulo";
+                                comandoImagenes.Parameters.AddWithValue("@IdArticulo", articulo.Id);
+
+                                using (SqlDataReader lecturaImagenes = comandoImagenes.ExecuteReader())
+                                {
+                                    while (lecturaImagenes.Read())
+                                    {
+                                        Imagen img = new Imagen();
+                                        img.Id = (int)lecturaImagenes["Id"];
+                                        img.ImagenURL = (string)lecturaImagenes["ImagenUrl"];
+                                        articulo.ListaImagenes.Add(img);
+                                    }
+                                } 
+                            } 
+                        }
+
+                        return Lista;
+
                     }
-                    lecturaImagenes.Close();
-                }
-              
-                return Lista;
-              
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (conexion.State == System.Data.ConnectionState.Open)
-                    conexion.Close();
-            }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+                } 
+            } 
         }
-
         public List<Marca> ListarMarcas()
         {
             List<Marca> lista = new List<Marca>();
@@ -427,6 +431,48 @@ namespace TPWinForm_Equipo22B
             catch (Exception ex)
             {
                 throw ex;
+            }
+            finally
+            {
+                if (conexion.State == System.Data.ConnectionState.Open)
+                    conexion.Close();
+            }
+        }
+
+        public bool VerificarCodigoExistente(string codigo, int idArticulo = 0)
+        {
+            SqlConnection conexion = new SqlConnection();
+            SqlCommand comando = new SqlCommand();
+            try
+            {
+                conexion.ConnectionString = "server=.\\SQLEXPRESS; database=CATALOGO_P3_DB; integrated security=true";
+                comando.CommandType = System.Data.CommandType.Text;
+
+                
+                string consulta = "SELECT COUNT(*) FROM ARTICULOS WHERE Codigo = @Codigo";
+
+              
+                if (idArticulo != 0)
+                {
+                    consulta += " AND Id != @Id"; 
+                    comando.Parameters.AddWithValue("@Id", idArticulo);
+                }
+
+                comando.CommandText = consulta;
+                comando.Parameters.AddWithValue("@Codigo", codigo);
+                comando.Connection = conexion;
+                conexion.Open();
+
+               
+                int cantidad = Convert.ToInt32(comando.ExecuteScalar());
+
+               
+                return cantidad > 0;
+            }
+            catch (Exception ex)
+            {
+ 
+                throw new Exception("Error al verificar código existente.", ex);
             }
             finally
             {

@@ -39,6 +39,10 @@ namespace TPWinForm_Equipo22B
             dgvArticulos.Columns["id"].Visible = false; 
             dgvArticulos.Columns["Marca"].Visible = false;
             dgvArticulos.Columns["Categoria"].Visible = false;
+
+            dgvArticulos.Columns["nombreMarca"].HeaderText = "Marca";
+            dgvArticulos.Columns["nombreCategoria"].HeaderText = "Categoría";
+
             cargarDatos();
             cboCampo.Items.Add("Codigo");
             cboCampo.Items.Add("Nombre");
@@ -67,20 +71,30 @@ namespace TPWinForm_Equipo22B
 
         private void dgvArticulos_SelectionChanged(object sender, EventArgs e)
         {
+            // Acá verifico si hay una fiula seleccionada
             if (dgvArticulos.CurrentRow != null)
             {
-                indiceImagenActual = 0;
-                Articulo seleccion = (Articulo)dgvArticulos.CurrentRow.DataBoundItem;
-                if (seleccion.ListaImagenes.Count > 0)
+                try
                 {
-                    cargarImagen(seleccion.ListaImagenes[indiceImagenActual].ImagenURL);
+                    indiceImagenActual = 0;
+
+                    Articulo seleccionado = (Articulo)dgvArticulos.CurrentRow.DataBoundItem;
+
+                    if (seleccionado.ListaImagenes != null && seleccionado.ListaImagenes.Count > 0)
+                    {
+                        cargarImagen(seleccionado.ListaImagenes[indiceImagenActual].ImagenURL);
+                    }
+                    else
+                    {
+
+                        cargarImagen("https://cdn-icons-png.flaticon.com/512/13434/13434972.png");
+                    }
                 }
-                else
+                catch (Exception)
                 {
                     cargarImagen("https://cdn-icons-png.flaticon.com/512/13434/13434972.png");
                 }
             }
-
         }
 
         private void botonAnterior_Click(object sender, EventArgs e)
