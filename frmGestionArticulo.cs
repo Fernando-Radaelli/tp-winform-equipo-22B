@@ -54,11 +54,51 @@ namespace TPWinForm_Equipo22B
 
             try
             {
-
                 if (articulo == null)
                 {
                     articulo = new Articulo();
                 }
+
+                if (string.IsNullOrWhiteSpace(txtCodigo.Text))
+                {
+                    MessageBox.Show("El campo Código es obligatorio.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(txtNombre.Text))
+                {
+                    MessageBox.Show("El campo Nombre es obligatorio.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+
+                if (!string.IsNullOrWhiteSpace(txtPrecioArticulo.Text))
+                {
+                    if (!decimal.TryParse(txtPrecioArticulo.Text, out decimal precio))
+                    {
+                        MessageBox.Show("El Precio debe ser un valor numérico válido.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    if (precio < 0)
+                    {
+                        MessageBox.Show("El Precio no puede ser negativo.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                 
+                    if (precio == 0)
+                    {
+                        MessageBox.Show("El Precio debe ser mayor a $0.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    articulo.Precio = precio;
+                }
+                else
+                {
+
+                    MessageBox.Show("El campo Precio es obligatorio y debe ser mayor a $0.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }               
 
                 articulo.Codigo = txtCodigo.Text;
                 articulo.Nombre = txtNombre.Text;
@@ -99,7 +139,7 @@ namespace TPWinForm_Equipo22B
                     if (articulo.Id != 0 && articulo.ListaImagenes != null && articulo.ListaImagenes.Count > 0)
                     {
 
-                        metodo.Eliminar(articulo.Id);
+                        metodo.EliminarImagenes(articulo.Id);
                     }
 
 
