@@ -50,6 +50,8 @@ namespace TPWinForm_Equipo22B
             cboCampo.Items.Add("Marca");
             cboCampo.Items.Add("Categoria");
             cboCampo.Items.Add("Precio");
+
+            cboCampo.SelectedIndex = 0;
         }
 
 
